@@ -1,0 +1,54 @@
+﻿@page "/"
+@inject VerbDatabase Db
+@inject NavigationManager Nav
+
+<PageTitle>Konjugieren · German verb conjugations</PageTitle>
+
+<section class="hero">
+    <h1>German verb conjugations</h1>
+    <p class="lede">
+        @Db.VerbCount.ToString("N0") verbs with every simple and compound tense, in main and subordinate clauses, and
+        irregular forms highlighted. Search by infinitive, or by any form, like <em lang="de">ging</em>, <em lang="de">bin</em>
+        or <em lang="de">rief</em>.
+    </p>
+    <SearchBox />
+    <div class="hero-links">
+        <button class="link-button" @onclick="Random">Random verb →</button>
+        <a href="guide">What do all the tenses mean? →</a>
+    </div>
+</section>
+
+<section class="quick">
+    <h2>Common verbs</h2>
+    <div class="chips" lang="de">
+        @foreach (var v in Common)
+        {
+            <a class="chip" href="verb/@v">@v</a>
+        }
+    </div>
+    <h2>One of each pattern</h2>
+    <div class="chips">
+        <a class="chip" href="verb/machen"><span lang="de">machen</span> <small>weak</small></a>
+        <a class="chip" href="verb/arbeiten"><span lang="de">arbeiten</span> <small>weak, -e-</small></a>
+        <a class="chip" href="verb/sammeln"><span lang="de">sammeln</span> <small>-eln</small></a>
+        <a class="chip" href="verb/studieren"><span lang="de">studieren</span> <small>-ieren</small></a>
+        <a class="chip" href="verb/fahren"><span lang="de">fahren</span> <small>strong</small></a>
+        <a class="chip" href="verb/bringen"><span lang="de">bringen</span> <small>mixed</small></a>
+        <a class="chip" href="verb/anrufen"><span lang="de">anrufen</span> <small>separable</small></a>
+        <a class="chip" href="verb/besuchen"><span lang="de">besuchen</span> <small>inseparable</small></a>
+        <a class="chip" href="verb/können"><span lang="de">können</span> <small>modal</small></a>
+    </div>
+</section>
+
+@code {
+    private static readonly string[] Common =
+    [
+        "sein", "haben", "werden", "können", "müssen", "sagen", "machen", "geben", "kommen", "sollen",
+        "wollen", "gehen", "wissen", "sehen", "lassen", "stehen", "finden", "bleiben", "liegen", "heißen",
+    ];
+
+    private void Random()
+    {
+        if (Db.RandomInfinitive() is { } v) Nav.NavigateTo("verb/" + Uri.EscapeDataString(v));
+    }
+}

@@ -1,0 +1,191 @@
+@page "/verb/{Infinitive}"
+@inject VerbDatabase Db
+
+<PageTitle>@(_verb?.Infinitive ?? Infinitive) · Konjugieren</PageTitle>
+
+@if (_verb is null)
+{
+    <h1>@Infinitive</h1>
+    <p>No verb called <strong>@Infinitive</strong> in the dictionary.</p>
+    @if (_suggestions.Count > 0)
+    {
+        <p>Did you mean:</p>
+        <div class="chips">
+            @foreach (var s in _suggestions) { <a class="chip" href="verb/@s.Infinitive" lang="de">@s.Infinitive</a> }
+        </div>
+    }
+}
+else
+{
+    <article class="verb">
+        <header class="verb-head">
+            <div class="title-row">
+                <h1 lang="de">@_verb.Infinitive</h1>
+                @if (_ipa is not null) { <span class="ipa">@_ipa</span> }
+            </div>
+            <div class="badges">
+                @if (ClassLabel(_verb.ConjugationClass) is { } cls) { <span class="badge">@cls</span> }
+                @if (_verb.IsIrregular == true)
+                {
+                    <span class="badge irr">irregular · @_verb.IrregularForms forms</span>
+                }
+                else if (_verb.IsIrregular == false)
+                {
+                    <span class="badge reg">regular</span>
+                }
+                @if (_verb.Auxiliary is { } aux) { <span class="badge">aux: @aux.Replace("|", " / ")</span> }
+                @if (_verb.Particle is { } particle) { <span class="badge">separable: <span lang="de">@particle</span></span> }
+                @if (_verb.Reflexive) { <span class="badge">reflexive</span> }
+                @if (_verb.BaseInfinitive is { } b)
+                {
+                    <span class="badge">from <a href="verb/@b" lang="de">@b</a></span>
+                }
+            </div>
+        </header>
+
+        @if (!_verb.HasConjugation)
+        {
+            <div class="notice">
+                The source has no conjugation table for this entry.
+                @if (_verb.LemmaInfinitive is { } lemma)
+                {
+                    <span>See <a href="verb/@lemma" lang="de">@lemma</a>.</span>
+                }
+            </div>
+        }
+
+        @if (_verb.LooksUnreliable)
+        {
+            <div class="notice warn">
+                Wiktionary calls this verb weak (regular), but almost none of its forms follow the weak pattern, so the table
+                it comes from is probably wrong. Check another source.
+            </div>
+        }
+
+        @if (_verb.Definitions.Count > 0)
+        {
+            <ol class="definitions">
+                @foreach (var d in _showAllDefinitions ? _verb.Definitions : _verb.Definitions.Take(MaxDefinitions))
+                {
+                    <li>@(d.Length > 220 && !_showAllDefinitions ? d[..200].TrimEnd() + "…" : d)</li>
+                }
+            </ol>
+            @if (!_showAllDefinitions && (_verb.Definitions.Count > MaxDefinitions || _verb.Definitions.Any(d => d.Length > 220)))
+            {
+                <button class="link-button more" @onclick="() => _showAllDefinitions = true">
+                    Show all @_verb.Definitions.Count definitions
+                </button>
+            }
+        }
+
+        @if (_view is not null)
+        {
+            <div class="toolbar">
+                <label><input type="checkbox" @bind="_showCompound" /> Compound tenses</label>
+                <label><input type="checkbox" @bind="_showRare" /> Archaic &amp; regional variants</label>
+                <label title="Verb-final word order, as after dass, weil, wenn: dass ich anrufe">
+                    <input type="checkbox" checked="@_subordinate" @onchange="ToggleSubordinate" /> Subordinate clause (dass …)
+                </label>
+                <span class="legend"><span class="irr">irregular</span> = differs from the weak pattern</span>
+            </div>
+
+            <section class="nonfinite">
+                @foreach (var n in _view.NonFinite.Where(n => _showCompound || !n.Compound))
+                {
+                    <div class="nf">
+                        <a class="nf-label" href="guide#@n.Id" title="What is the @n.Name?">@n.Name</a>
+                        <div class="nf-value" lang="de"><FormText Primary="n.Primary" Variants="n.Variants" ShowRare="_showRare" /></div>
+                    </div>
+                }
+            </section>
+
+            @if (_view.AuxiliaryNote is not null && _showCompound)
+            {
+                <p class="aux-note">@_view.AuxiliaryNote</p>
+            }
+
+            @foreach (var mood in _view.Moods)
+            {
+                <section class="mood">
+                    <h2><a href="guide#@mood.Id">@mood.Name</a></h2>
+                    <div class="cards">
+                        @foreach (var card in mood.Cards.Where(c => _showCompound || !c.Compound))
+                        {
+                            <div class="card @(card.Compound ? "compound" : "")">
+                                <h3>
+                                    <a href="guide#@card.Id" title="How the @card.Name is used">@card.Name</a>
+                                    <small>@card.English</small>
+                                </h3>
+                                <table>
+                                    @foreach (var row in card.Rows)
+                                    {
+                                        <tr>
+                                            <th scope="row" lang="de">@row.Pronoun</th>
+                                            <td lang="de"><FormText Primary="row.Primary" Variants="row.Variants" ShowRare="_showRare" /></td>
+                                        </tr>
+                                    }
+                                </table>
+                                @if (card.Footnote is not null) { <p class="footnote">@card.Footnote</p> }
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+        }
+
+        @if (_verb.Etymology is not null || _verb.Url is not null)
+        {
+            <section class="extras">
+                @if (_verb.Etymology is not null)
+                {
+                    <h2>Etymology</h2>
+                    <p>@_verb.Etymology</p>
+                }
+                @if (_verb.Url is not null)
+                {
+                    <p class="source"><a href="@_verb.Url" target="_blank" rel="noopener">Wiktionary entry ↗</a></p>
+                }
+            </section>
+        }
+    </article>
+}
+
+@code {
+    [Parameter] public string Infinitive { get; set; } = "";
+
+    private VerbDetail? _verb;
+    private ConjugationView? _view;
+    private string? _ipa;
+    private List<VerbSummary> _suggestions = [];
+    private const int MaxDefinitions = 3;
+    private bool _showCompound = true, _showRare, _showAllDefinitions, _subordinate;
+
+    protected override void OnParametersSet()
+    {
+        _showAllDefinitions = false;
+        var key = Uri.UnescapeDataString(Infinitive).Trim();
+        _verb = Db.GetVerb(key) ?? Db.GetVerb(key.ToLowerInvariant());
+        BuildView();
+        _ipa = _verb?.Pronunciations.FirstOrDefault();
+        _suggestions = _verb is null && key.Length > 2 ? Db.SearchInfinitives(key[..^1].ToLowerInvariant(), 8) : [];
+    }
+
+    private void BuildView() =>
+        _view = _verb is { HasConjugation: true } ? ConjugationBuilder.Build(_verb, Db.AuxiliaryForms(), _subordinate) : null;
+
+    private void ToggleSubordinate(ChangeEventArgs e)
+    {
+        _subordinate = e.Value is true;
+        BuildView();
+    }
+
+    /// <summary>KaikkiVerbs' class from the German Wiktionary table: "7 strong" → "strong (class 7)".</summary>
+    private static string? ClassLabel(string? cls) => cls switch
+    {
+        null => null,
+        "present" => "preterite-present",
+        "irregular weak" => "mixed (irregular weak)",
+        _ when cls.Length > 2 && char.IsDigit(cls[0]) && cls[1] == ' ' => cls[2..] + " (class " + cls[0] + ")",
+        _ => cls,
+    };
+}

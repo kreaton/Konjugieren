@@ -1,0 +1,375 @@
+@page "/guide"
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>German tenses explained · Konjugieren</PageTitle>
+
+<article class="guide">
+    <header class="guide-head">
+        <h1>German tenses explained</h1>
+        <p class="lede">
+            What each mood and tense is for, how the regular forms are built, and a few examples.
+            Every table on a verb page links here.
+        </p>
+        <nav class="toc" aria-label="Contents">
+            <a href="guide#basics">The basics</a>
+            @foreach (var mood in Moods)
+            {
+                <a href="guide#@mood.Id">@mood.Name</a>
+            }
+            <a href="guide#infinitiv">Infinitive and participles</a>
+            <a href="guide#trennbar">Separable verbs</a>
+            <a href="guide#reflexiv">Reflexive verbs</a>
+        </nav>
+    </header>
+
+    <section id="basics" class="guide-section">
+        <h2>The basics</h2>
+        <dl class="facts">
+            <dt>Weak, strong and mixed verbs</dt>
+            <dd>
+                <strong>Weak</strong> verbs are the regular ones: the stem stays the same and the past adds <em lang="de">-te</em>
+                (<em lang="de">machen → machte, gemacht</em>). Most German verbs are weak, and every new one is
+                (<em lang="de">googeln, chatten</em>). <strong>Strong</strong> verbs change their vowel in the past and end the
+                past participle in <em lang="de">-en</em> (<em lang="de">fahren → fuhr, gefahren</em>; <em lang="de">singen → sang, gesungen</em>).
+                Wiktionary sorts them into seven classes by their vowel pattern. <strong>Mixed</strong> verbs change the vowel but take the weak
+                endings (<em lang="de">bringen → brachte, gebracht</em>; <em lang="de">denken, kennen, wissen</em>). The modal verbs
+                (<em lang="de">können, müssen, dürfen, mögen, sollen, wollen</em>) and <em lang="de">wissen</em> are the
+                "preterite-present" verbs: their present looks like a past tense (<em lang="de">ich kann, er kann</em>, no <em>-t</em>).
+            </dd>
+
+            <dt>Six persons</dt>
+            <dd>
+                <em lang="de">ich</em> (I), <em lang="de">du</em> (you), <em lang="de">er/sie/es</em> (he/she/it), <em lang="de">wir</em> (we),
+                <em lang="de">ihr</em> (you, plural) and <em lang="de">sie</em> (they). The polite <em lang="de">Sie</em> ("you", to one person or
+                several) takes the same form as <em lang="de">sie</em> (they): <em lang="de">Sie machen</em>. Unlike Italian or Spanish,
+                German always says the pronoun.
+            </dd>
+
+            <dt>Simple and compound tenses</dt>
+            <dd>
+                Only the present and the simple past (and their subjunctives) are one word. The other tenses are built with an auxiliary:
+                <em lang="de">haben</em> or <em lang="de">sein</em> + past participle for the perfect tenses
+                (<em lang="de">ich habe gemacht, ich bin gegangen</em>), and <em lang="de">werden</em> + infinitive for the future
+                (<em lang="de">ich werde machen</em>). In a main clause the participle or infinitive goes to the end of the sentence:
+                <em lang="de">Ich habe gestern einen Kuchen gebacken.</em>
+            </dd>
+
+            <dt><span lang="de">Haben</span> or <span lang="de">sein</span>?</dt>
+            <dd>
+                Most verbs use <em lang="de">haben</em>, including every verb with a direct object and every reflexive verb. <em lang="de">Sein</em>
+                is used with verbs of movement from one place to another (<em lang="de">gehen, fahren, fliegen, kommen</em>), with changes of state
+                (<em lang="de">werden, wachsen, sterben, einschlafen</em>), and with <em lang="de">sein, bleiben</em> and <em lang="de">passieren</em>.
+                Some verbs take both: <em lang="de">ich bin nach Berlin gefahren</em> (I went to Berlin) but <em lang="de">ich habe das Auto gefahren</em>
+                (I drove the car). The tables show these as <em lang="de">habe/bin gefahren</em>. In southern Germany, Austria and Switzerland
+                <em lang="de">sein</em> is also used with <em lang="de">liegen, sitzen, stehen</em>.
+            </dd>
+
+            <dt>Spelling changes that are still regular</dt>
+            <dd>
+                Stems ending in <em>-d</em>, <em>-t</em> or a consonant + <em>m/n</em> add an <em>e</em> before endings that start with a consonant
+                (<em lang="de">arbeiten → du arbeitest, er arbeitet, arbeitete</em>; <em lang="de">atmen → er atmet</em>). Stems ending in
+                <em>s, ß, x, z</em> take only <em>-t</em> for <em>du</em> (<em lang="de">du reist, du heißt</em>). Verbs in <em lang="de">-eln</em> and
+                <em lang="de">-ern</em> end the infinitive and the <em>wir/sie</em> forms in <em>-n</em>, and <em lang="de">-eln</em> verbs usually drop
+                an <em>e</em> for <em>ich</em> (<em lang="de">sammeln → ich sammle, wir sammeln</em>). Verbs in <em lang="de">-ieren</em> and verbs with
+                an unstressed prefix have no <em>ge-</em> in the past participle (<em lang="de">studiert, besucht, verkauft</em>).
+            </dd>
+
+            <dt>What the red forms mean</dt>
+            <dd>
+                Konjugieren builds the weak form for every slot and compares it with the real form. Forms that differ are shown in
+                <span class="irr">red</span>, so a strong verb shows exactly where its vowel changes (<em lang="de">du fährst, er fährt</em>, all of
+                <em lang="de">fuhr</em>, <em lang="de">gefahren</em>) and the rest stays black. The spelling changes above don't count as irregular.
+                A weak verb whose forms are almost all red gets a warning: the source table is probably wrong.
+            </dd>
+
+            <dt>Main and subordinate clauses</dt>
+            <dd>
+                In a main clause the conjugated verb is the second element (<em lang="de">Ich rufe dich morgen an.</em>). After
+                <em lang="de">dass, weil, wenn, ob, als</em> and relative pronouns it goes to the end, and a separable verb is written as one word again:
+                <em lang="de">…, dass ich dich morgen anrufe</em>; <em lang="de">…, weil ich ihn angerufen habe</em>. The
+                <em>Subordinate clause</em> switch on a verb page shows every tense in that order.
+            </dd>
+        </dl>
+    </section>
+
+    @foreach (var mood in Moods)
+    {
+        <section id="@mood.Id" class="guide-section">
+            <h2>@mood.Name <small>@mood.English</small></h2>
+            <p class="mood-intro">@((MarkupString)mood.Intro)</p>
+
+            @foreach (var t in mood.Tenses)
+            {
+                <div id="@t.Id" class="tense-guide @(t.Compound ? "compound" : "")">
+                    <h3>@t.Name <small>@t.English</small></h3>
+                    <p><strong>Used for:</strong> @((MarkupString)t.Usage)</p>
+                    <p><strong>Formed:</strong> @((MarkupString)t.Formation)</p>
+                    @if (t.Endings is not null)
+                    {
+                        <table class="endings">
+                            <thead>
+                                <tr><th></th><th lang="de">machen</th><th lang="de">arbeiten</th><th lang="de">fahren</th></tr>
+                            </thead>
+                            <tbody>
+                                @for (var p = 0; p < t.Endings.Length; p++)
+                                {
+                                    <tr>
+                                        <th scope="row" lang="de">@t.Pronouns[p]</th>
+                                        @foreach (var form in t.Endings[p])
+                                        {
+                                            <td lang="de">@Stem(form)<b>@Ending(form)</b></td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    <ul class="examples">
+                        @foreach (var (de, en) in t.Examples)
+                        {
+                            <li><span lang="de">@de</span> <span class="en">@en</span></li>
+                        }
+                    </ul>
+                    @if (Links.TryGetValue(t.Id, out var verbs))
+                    {
+                        <p class="see">See it in: @foreach (var v in verbs) { <a href="verb/@v" lang="de">@v</a><span class="comma">, </span> }</p>
+                    }
+                </div>
+            }
+        </section>
+    }
+
+    <section id="infinitiv" class="guide-section">
+        <h2>Infinitive and participles <small>infinite Verbformen</small></h2>
+        <p class="mood-intro">These forms don't change for the person.</p>
+
+        <div class="tense-guide">
+            <h3>Infinitiv <small>infinitive</small></h3>
+            <p>
+                <strong>Used for:</strong> the dictionary form; after modal verbs (<em lang="de">ich kann schwimmen</em>), with
+                <em lang="de">werden</em> for the future, and as a noun (<em lang="de">das Essen</em>). The
+                <em lang="de">Infinitiv Perfekt</em> (<em lang="de">gemacht haben, gegangen sein</em>) is the infinitive of a completed action:
+                <em lang="de">Er muss es vergessen haben.</em>
+            </p>
+        </div>
+
+        <div id="zu-infinitiv" class="tense-guide">
+            <h3>zu-Infinitiv <small>infinitive with zu</small></h3>
+            <p>
+                <strong>Used for:</strong> after most verbs other than modals, and after <em lang="de">um, ohne, statt</em>. Separable verbs
+                take the <em lang="de">zu</em> between the prefix and the verb, as one word: <em lang="de">anzurufen, aufzustehen</em>.
+            </p>
+            <ul class="examples">
+                <li><span lang="de">Ich habe vergessen, dich anzurufen.</span> <span class="en">I forgot to call you.</span></li>
+                <li><span lang="de">Er lernt Deutsch, um in Berlin zu arbeiten.</span> <span class="en">He's learning German in order to work in Berlin.</span></li>
+            </ul>
+        </div>
+
+        <div id="partizip-i" class="tense-guide">
+            <h3>Partizip I <small>present participle</small></h3>
+            <p>
+                <strong>Used for:</strong> mostly as an adjective, with adjective endings: <em lang="de">ein lachendes Kind</em> (a laughing child),
+                <em lang="de">die steigenden Preise</em>. Formed as infinitive + <em>-d</em>: <em lang="de">lachend, schlafend</em>. German has no
+                continuous tense: "I am reading" is just <em lang="de">ich lese</em>.
+            </p>
+        </div>
+
+        <div id="partizip-ii" class="tense-guide">
+            <h3>Partizip II <small>past participle</small></h3>
+            <p>
+                <strong>Used for:</strong> all the perfect tenses, the passive (<em lang="de">werden</em> + participle:
+                <em lang="de">das Haus wird gebaut</em>), and as an adjective (<em lang="de">ein gekochtes Ei</em>). Weak verbs:
+                <em>ge-</em> + stem + <em>-t</em> (<em lang="de">gemacht, gearbeitet</em>). Strong verbs: <em>ge-</em> + stem, often with another vowel,
+                + <em>-en</em> (<em lang="de">gefahren, gesungen, geschrieben</em>). No <em>ge-</em> after an unstressed prefix or in
+                <em lang="de">-ieren</em> verbs (<em lang="de">besucht, verstanden, studiert</em>); separable verbs put it after the prefix
+                (<em lang="de">angerufen, eingekauft</em>).
+            </p>
+        </div>
+    </section>
+
+    <section id="trennbar" class="guide-section">
+        <h2>Separable verbs <small>trennbare Verben</small></h2>
+        <p>
+            Many verbs start with a stressed prefix that splits off in a main clause and goes to the end: <em lang="de">anrufen → ich rufe dich an</em>,
+            <em lang="de">aufstehen → ich stehe um sieben auf</em>, <em lang="de">einkaufen, mitkommen, zurückgehen</em>. The prefix stays attached in the
+            infinitive, in the participles (<em lang="de">angerufen</em>, with <em>ge-</em> in the middle), in the <em lang="de">zu</em>-infinitive
+            (<em lang="de">anzurufen</em>) and in a subordinate clause (<em lang="de">…, wenn ich anrufe</em>). The inseparable prefixes
+            <em lang="de">be-, emp-, ent-, er-, ge-, miss-, ver-, zer-</em> never split and take no <em>ge-</em> (<em lang="de">besuchen → besucht</em>).
+        </p>
+        <p class="see">See it in: <a href="verb/anrufen" lang="de">anrufen</a>, <a href="verb/aufstehen" lang="de">aufstehen</a>, <a href="verb/einkaufen" lang="de">einkaufen</a>, <a href="verb/wiedergutmachen" lang="de">wiedergutmachen</a></p>
+    </section>
+
+    <section id="reflexiv" class="guide-section">
+        <h2>Reflexive verbs <small>reflexive Verben</small></h2>
+        <p>
+            Reflexive verbs come with <em lang="de">sich</em> in the dictionary (<em lang="de">sich freuen, sich beeilen</em>) and use the pronouns
+            <em lang="de">mich, dich, sich, uns, euch, sich</em>: <em lang="de">ich freue mich, du freust dich</em>. Their perfect tenses take
+            <em lang="de">haben</em>: <em lang="de">ich habe mich gefreut</em>. Many ordinary verbs can also be used reflexively
+            (<em lang="de">waschen → sich waschen</em>); Wiktionary lists those under the plain verb, which is why the dictionary has only a few
+            entries starting with <em lang="de">sich</em>.
+        </p>
+        <p class="see">See it in: <a href="verb/sich%20sputen" lang="de">sich sputen</a>, <a href="verb/sich%20akklimatisieren" lang="de">sich akklimatisieren</a></p>
+    </section>
+</article>
+
+@code {
+    private sealed record GuideTense(
+        string Id, string Name, string English, bool Compound, string Usage, string Formation,
+        string[] Pronouns, string[][]? Endings, (string De, string En)[] Examples);
+
+    private sealed record GuideMood(string Id, string Name, string English, string Intro, GuideTense[] Tenses);
+
+    private static readonly string[] Ich = ["ich", "du", "er/sie/es", "wir", "ihr", "sie/Sie"];
+    private static readonly string[] Imp = ["(du)", "(ihr)", "(Sie)"];
+
+    // "mach|te" = stem + ending; the ending is shown in bold.
+    private static string Stem(string f) => f.Split('|')[0];
+    private static string Ending(string f) => f.Contains('|') ? f.Split('|')[1] : "";
+
+    private static string[][] Rows(params string[][] persons) => persons;
+
+    private static readonly GuideMood[] Moods =
+    [
+        new("indikativ", "Indikativ", "indicative",
+            "The mood of facts: what happens, happened or will happen. Most of what you say and read is in the indicative.",
+        [
+            new("indikativ-praesens", "Präsens", "present", false,
+                "what is happening now, habits and general truths, and very often the future: German usually says <em lang=\"de\">Ich komme morgen</em> rather than using the future tense. With <em lang=\"de\">seit</em> it says how long something has been going on.",
+                "stem + present endings. Many strong verbs change <em>e</em> to <em>i/ie</em> or <em>a</em> to <em>ä</em> for <em>du</em> and <em>er/sie/es</em> (<em lang=\"de\">fahren → du fährst</em>; <em lang=\"de\">sehen → er sieht</em>).",
+                Ich, Rows(["mach|e", "arbeit|e", "fahr|e"], ["mach|st", "arbeit|est", "fähr|st"], ["mach|t", "arbeit|et", "fähr|t"],
+                          ["mach|en", "arbeit|en", "fahr|en"], ["mach|t", "arbeit|et", "fahr|t"], ["mach|en", "arbeit|en", "fahr|en"]),
+                [("Ich wohne in Hamburg.", "I live in Hamburg."),
+                 ("Wir fahren morgen nach München.", "We're going to Munich tomorrow."),
+                 ("Ich lerne seit zwei Jahren Deutsch.", "I have been learning German for two years.")]),
+            new("indikativ-perfekt", "Perfekt", "present perfect", true,
+                "the past in conversation. It covers both \"I did\" and \"I have done\", and is what Germans say about the past in everyday speech, especially in the south.",
+                "present of <em lang=\"de\">haben</em>/<em lang=\"de\">sein</em> + Partizip II, which goes to the end of the clause.",
+                Ich, null,
+                [("Ich habe gestern Pizza gegessen.", "I ate pizza yesterday."),
+                 ("Wir sind nach Berlin gefahren.", "We went to Berlin."),
+                 ("Hast du das schon gesehen?", "Have you seen this yet?")]),
+            new("indikativ-praeteritum", "Präteritum", "simple past", false,
+                "the past in writing: stories, reports and newspapers. In speech it is used mainly for <em lang=\"de\">sein, haben</em>, the modal verbs and a few others (<em lang=\"de\">ich war, ich hatte, ich musste, es gab</em>); for most other verbs people say the Perfekt.",
+                "weak verbs: stem + <em>-te</em> + endings. Strong verbs change the vowel and take no ending for <em>ich</em> and <em>er/sie/es</em> (<em lang=\"de\">fuhr, sang, ging</em>).",
+                Ich, Rows(["mach|te", "arbeit|ete", "fuhr|"], ["mach|test", "arbeit|etest", "fuhr|st"], ["mach|te", "arbeit|ete", "fuhr|"],
+                          ["mach|ten", "arbeit|eten", "fuhr|en"], ["mach|tet", "arbeit|etet", "fuhr|t"], ["mach|ten", "arbeit|eten", "fuhr|en"]),
+                [("Es war einmal ein König.", "Once upon a time there was a king."),
+                 ("Ich hatte keine Zeit.", "I had no time."),
+                 ("Sie öffnete die Tür und ging hinaus.", "She opened the door and went out.")]),
+            new("indikativ-plusquamperfekt", "Plusquamperfekt", "past perfect", true,
+                "something that had already happened before another past event (\"had done\").",
+                "Präteritum of <em lang=\"de\">haben</em>/<em lang=\"de\">sein</em> + Partizip II.",
+                Ich, null,
+                [("Als ich ankam, war der Zug schon abgefahren.", "When I arrived, the train had already left."),
+                 ("Nachdem er gegessen hatte, ging er spazieren.", "After he had eaten, he went for a walk.")]),
+            new("indikativ-futur-i", "Futur I", "future", true,
+                "the future when it needs stressing (plans, promises, predictions), and guesses about the present (\"it's probably…\"). Most of the time the present tense is enough.",
+                "present of <em lang=\"de\">werden</em> + infinitive.",
+                Ich, null,
+                [("Morgen wird es regnen.", "It will rain tomorrow."),
+                 ("Ich werde dich nie vergessen.", "I'll never forget you."),
+                 ("Er wird wohl krank sein.", "He's probably ill.")]),
+            new("indikativ-futur-ii", "Futur II", "future perfect", true,
+                "something that will be finished by a moment in the future, and guesses about the past.",
+                "present of <em lang=\"de\">werden</em> + Partizip II + <em lang=\"de\">haben</em>/<em lang=\"de\">sein</em>.",
+                Ich, null,
+                [("Bis Freitag werde ich das Buch gelesen haben.", "By Friday I'll have read the book."),
+                 ("Er wird den Zug verpasst haben.", "He has probably missed the train.")]),
+        ]),
+        new("konjunktiv-i", "Konjunktiv I", "subjunctive I",
+            "The mood of reported speech: it shows that you are passing on what someone else said, without vouching for it. It is mostly written, in news and formal texts. It also survives in a few fixed phrases (<em lang=\"de\">Es lebe der König! Gott sei Dank</em>).",
+        [
+            new("konjunktiv-i-praesens", "Präsens", "present", false,
+                "reported statements about the present: <em lang=\"de\">Er sagt, er sei krank.</em> Where a form is the same as the indicative (<em lang=\"de\">wir machen, sie machen</em>), the Konjunktiv II is used instead.",
+                "stem + <em>-e, -est, -e, -en, -et, -en</em>, with no vowel change. Only <em lang=\"de\">sein</em> is irregular (<em lang=\"de\">ich sei, du seist, er sei</em>).",
+                Ich, Rows(["mach|e", "arbeit|e", "fahr|e"], ["mach|est", "arbeit|est", "fahr|est"], ["mach|e", "arbeit|e", "fahr|e"],
+                          ["mach|en", "arbeit|en", "fahr|en"], ["mach|et", "arbeit|et", "fahr|et"], ["mach|en", "arbeit|en", "fahr|en"]),
+                [("Der Minister sagte, er habe keine Zeit.", "The minister said he had no time."),
+                 ("Sie behauptet, sie wisse nichts davon.", "She claims she knows nothing about it.")]),
+            new("konjunktiv-i-perfekt", "Perfekt", "perfect", true,
+                "reported statements about the past.",
+                "Konjunktiv I of <em lang=\"de\">haben</em>/<em lang=\"de\">sein</em> + Partizip II.",
+                Ich, null,
+                [("Er sagte, er sei gestern in Berlin gewesen.", "He said he had been in Berlin yesterday."),
+                 ("Sie meint, sie habe den Brief nie bekommen.", "She says she never received the letter.")]),
+            new("konjunktiv-i-futur-i", "Futur I", "future", true,
+                "reported statements about the future.",
+                "Konjunktiv I of <em lang=\"de\">werden</em> + infinitive.",
+                Ich, null,
+                [("Er sagte, er werde morgen kommen.", "He said he would come tomorrow.")]),
+        ]),
+        new("konjunktiv-ii", "Konjunktiv II", "subjunctive II",
+            "The mood of the unreal and the polite: wishes, hypotheses, \"if\" sentences and polite requests. It is the German \"would\".",
+        [
+            new("konjunktiv-ii-praeteritum", "Präteritum", "past subjunctive", false,
+                "the unreal present: wishes, hypotheses and polite requests. In speech only a handful of verbs use it (<em lang=\"de\">wäre, hätte, würde</em>, the modals <em lang=\"de\">könnte, müsste, dürfte, sollte, wollte, möchte</em>, and <em lang=\"de\">käme, ginge, wüsste, gäbe</em>); the others use the <em lang=\"de\">würde</em> form.",
+                "weak verbs: the same as the Präteritum (<em lang=\"de\">machte</em>), which is why it is avoided. Strong verbs: the Präteritum stem with an umlaut where possible, + <em>-e</em> endings (<em lang=\"de\">fuhr → führe</em>; <em lang=\"de\">kam → käme</em>).",
+                Ich, Rows(["mach|te", "arbeit|ete", "führ|e"], ["mach|test", "arbeit|etest", "führ|est"], ["mach|te", "arbeit|ete", "führ|e"],
+                          ["mach|ten", "arbeit|eten", "führ|en"], ["mach|tet", "arbeit|etet", "führ|et"], ["mach|ten", "arbeit|eten", "führ|en"]),
+                [("Wenn ich Zeit hätte, käme ich mit.", "If I had time, I'd come along."),
+                 ("Könnten Sie mir helfen?", "Could you help me?"),
+                 ("Ich wäre gern reich.", "I'd like to be rich.")]),
+            new("konjunktiv-ii-plusquamperfekt", "Plusquamperfekt", "past perfect", true,
+                "the unreal past: what would have happened, regrets and missed chances.",
+                "Konjunktiv II of <em lang=\"de\">haben</em>/<em lang=\"de\">sein</em> (<em lang=\"de\">hätte, wäre</em>) + Partizip II.",
+                Ich, null,
+                [("Wenn ich das gewusst hätte, wäre ich gekommen.", "If I had known, I would have come."),
+                 ("Du hättest mich anrufen sollen.", "You should have called me.")]),
+            new("konjunktiv-ii-wuerde-infinitiv", "würde + Infinitiv", "would", true,
+                "the everyday Konjunktiv II for most verbs, and the conditional (\"would do\").",
+                "Konjunktiv II of <em lang=\"de\">werden</em> (<em lang=\"de\">würde</em>) + infinitive.",
+                Ich, null,
+                [("Ich würde gern mitkommen.", "I'd like to come along."),
+                 ("Würdest du mir das Salz geben?", "Would you pass me the salt?"),
+                 ("An deiner Stelle würde ich das nicht machen.", "If I were you, I wouldn't do that.")]),
+            new("konjunktiv-ii-wuerde-infinitiv-perfekt", "würde + Infinitiv Perfekt", "would have", true,
+                "a rarer alternative to the Plusquamperfekt: what would have happened.",
+                "<em lang=\"de\">würde</em> + Partizip II + <em lang=\"de\">haben</em>/<em lang=\"de\">sein</em>.",
+                Ich, null,
+                [("Ohne dich würde ich es nicht geschafft haben.", "Without you I wouldn't have made it.")]),
+        ]),
+        new("imperativ", "Imperativ", "imperative",
+            "The mood of commands, instructions and invitations.",
+        [
+            new("imperativ-imperativ", "Imperativ", "imperative", false,
+                "telling someone to do something. There are three forms: <em lang=\"de\">du</em>, <em lang=\"de\">ihr</em> and the polite <em lang=\"de\">Sie</em>. <em lang=\"de\">Bitte</em> makes it friendlier. The negative is <em lang=\"de\">nicht</em> after the verb (<em lang=\"de\">Komm nicht zu spät!</em>).",
+                "<em>du</em>: the stem, sometimes with <em>-e</em> (<em lang=\"de\">mach!</em> or <em lang=\"de\">mache!</em>); strong verbs that change <em>e</em> to <em>i/ie</em> do it here too (<em lang=\"de\">geben → gib!</em>; <em lang=\"de\">lesen → lies!</em>) but <em>a</em> stays <em>a</em> (<em lang=\"de\">fahr!</em>). <em>ihr</em>: the present form. <em>Sie</em>: the infinitive + <em lang=\"de\">Sie</em>; <em lang=\"de\">sein</em> has <em lang=\"de\">seien Sie</em>.",
+                Imp, Rows(["mach|(e)", "arbeit|e", "fahr|(e)"], ["mach|t", "arbeit|et", "fahr|t"], ["mach|en Sie", "arbeit|en Sie", "fahr|en Sie"]),
+                [("Komm her!", "Come here!"),
+                 ("Ruf mich morgen an!", "Call me tomorrow!"),
+                 ("Nehmen Sie bitte Platz.", "Please take a seat. (formal)"),
+                 ("Seid leise, Kinder!", "Be quiet, children!")]),
+        ]),
+    ];
+
+    private static readonly Dictionary<string, string[]> Links = new()
+    {
+        ["indikativ-praesens"] = ["machen", "fahren", "sehen"],
+        ["indikativ-perfekt"] = ["essen", "gehen", "anrufen"],
+        ["indikativ-praeteritum"] = ["sein", "haben", "gehen"],
+        ["indikativ-futur-i"] = ["werden"],
+        ["konjunktiv-i-praesens"] = ["sein", "haben", "wissen"],
+        ["konjunktiv-ii-praeteritum"] = ["sein", "haben", "kommen", "können"],
+        ["imperativ-imperativ"] = ["geben", "lesen", "sein"],
+    };
+
+    // Blazor doesn't scroll to a #fragment when navigating, so do it on arrival and on in-page links.
+    protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await ScrollToFragment(Nav.Uri);
+    }
+
+    private async void OnLocationChanged(object? sender, LocationChangedEventArgs e) => await ScrollToFragment(e.Location);
+
+    private async Task ScrollToFragment(string uri)
+    {
+        var fragment = new Uri(uri).Fragment.TrimStart('#');
+        if (fragment.Length > 0) await JS.InvokeVoidAsync("konjugieren.scrollToId", fragment);
+    }
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}

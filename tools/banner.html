@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!--
+  The README banner (images/banner.png), 1920x1200. The window shows the app's own markup (a snapshot of
+  /verb/fahren) styled by its own stylesheet.
+  Render it with:  powershell -File tools\make-banner.ps1
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Konjugieren banner</title>
+<link rel="stylesheet" href="../src/Konjugieren/wwwroot/css/app.css" />
+<style>
+    html, body { width: 1920px; height: 1200px; overflow: hidden; }
+    body {
+        margin: 0;
+        background:
+            radial-gradient(1000px 800px at 100% 100%, #3462a455, transparent 70%),
+            radial-gradient(1100px 700px at 10% 0%, #1d3b66, transparent 70%),
+            #0e1c33;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 110px 0 100px;
+        box-sizing: border-box;
+        color: #f4f1e8;
+    }
+
+    .pitch { max-width: 720px; color: #f4f1e8; }
+    .pitch .brand { display: flex; align-items: center; gap: 30px; }
+    .pitch .brand img { width: 112px; height: 112px; border-radius: 28px; box-shadow: 0 16px 40px #0008; }
+    .pitch .brand h1 { margin: 0; font-family: var(--serif); font-size: 74px; font-weight: 700; letter-spacing: -0.01em; color: #fff; }
+    .tagline { margin: 44px 0 0; font-size: 44px; line-height: 1.25; color: #f4f1e8; }
+    .tagline em { font-style: normal; color: #ff9b8f; }
+
+    .features { margin: 48px 0 0; padding: 0; list-style: none; display: grid; gap: 22px; }
+    .features li { position: relative; padding-left: 36px; font-size: 30px; color: #dfe6f0; }
+    .features li::before {
+        content: ""; position: absolute; left: 0; top: 14px;
+        width: 14px; height: 14px; border-radius: 4px; background: #8fb4ec;
+    }
+
+    .window {
+        flex: none;
+        width: 860px;
+        border-radius: 18px;
+        overflow: hidden;
+        background: var(--bg);
+        box-shadow: 0 40px 120px #000b, 0 0 0 1px #ffffff22;
+        transform: scale(1.12);
+        transform-origin: right center;
+    }
+    .chrome { height: 40px; display: flex; align-items: center; gap: 9px; padding: 0 18px; background: #e9e5dd; }
+    .chrome i { width: 13px; height: 13px; border-radius: 50%; background: #cfc9bd; }
+    .chrome span { margin-left: 18px; flex: 1; height: 24px; border-radius: 12px; background: #f7f4ee; font: 13px var(--font); color: #8a8f8b; line-height: 24px; padding-left: 14px; }
+    .window { color: var(--text); }
+    .window .topbar { position: static; padding: .6rem 16px; }
+    .window .page { padding-top: .2rem; padding-bottom: 1.6rem; }
+    .window .definitions { white-space: pre-line; font-size: .92rem; }
+    .window .cards { grid-template-columns: repeat(2, 1fr); }
+    .window .mood h2 { margin-top: 0; }
+</style>
+</head>
+<body>
+<section class="pitch">
+    <div class="brand">
+        <img src="../src/Konjugieren/wwwroot/icons/icon-512.png" alt="" />
+        <h1>Konjugieren</h1>
+    </div>
+    <p class="tagline">Every German verb, every tense,<br />with the <em>irregular forms in red</em>.</p>
+    <ul class="features">
+        <li>9,000 verbs from Wiktionary</li>
+        <li>Every tense, in main and subordinate clauses</li>
+        <li>Look up any form: <i>ging</i> finds <i>gehen</i></li>
+        <li>A plain-English guide to every tense</li>
+        <li>Nothing to install: it runs in the browser</li>
+    </ul>
+</section>
+
+<div class="window">
+<div class="chrome"><i></i><i></i><i></i><span>kreaton.github.io/Konjugieren/verb/fahren</span></div>
+<header class="topbar"><a class="brand" href=""><img src="../src/Konjugieren/wwwroot/icons/icon-192.png" width="28" height="28" alt="">
+        <span>Konjugieren</span></a>
+    <nav class="nav"><a href="" class="nav-link">Tenses</a></nav><div class="search compact"><input type="search" placeholder="Search verb…"></div></header>
+<main class="page"><article class="verb">
+<header class="verb-head"><div class="title-row"><h1 lang="de">fahren</h1><span class="ipa">[ˈfaːʁən]</span></div><div class="badges"><span class="badge">strong (class 6)</span><span class="badge irr">irregular · 15 forms</span><span class="badge">aux: haben / sein</span></div></header>
+<ol class="definitions"><li>(intransitive) to go; to run; to drive; to sail</li><li>(transitive) to drive (a vehicle)</li></ol>
+<section class="mood"><h2><a href="">Indikativ</a></h2>
+<div class="cards">
+<div class="card"><h3><a href="">Präsens</a> <small>present</small></h3>
+<table><tr><th scope="row">ich</th><td lang="de"><span>fahre</span></td></tr><tr><th scope="row">du</th><td lang="de"><span class="irr">fährst</span></td></tr><tr><th scope="row">er/sie/es</th><td lang="de"><span class="irr">fährt</span></td></tr><tr><th scope="row">wir</th><td lang="de"><span>fahren</span></td></tr><tr><th scope="row">ihr</th><td lang="de"><span>fahrt</span></td></tr><tr><th scope="row">sie/Sie</th><td lang="de"><span>fahren</span></td></tr></table></div>
+<div class="card compound"><h3><a href="">Perfekt</a> <small>present perfect</small></h3>
+<table><tr><th scope="row">ich</th><td lang="de"><span>habe/bin </span><span class="irr">gefahren</span></td></tr><tr><th scope="row">du</th><td lang="de"><span>hast/bist </span><span class="irr">gefahren</span></td></tr><tr><th scope="row">er/sie/es</th><td lang="de"><span>hat/ist </span><span class="irr">gefahren</span></td></tr><tr><th scope="row">wir</th><td lang="de"><span>haben/sind </span><span class="irr">gefahren</span></td></tr><tr><th scope="row">ihr</th><td lang="de"><span>habt/seid </span><span class="irr">gefahren</span></td></tr><tr><th scope="row">sie/Sie</th><td lang="de"><span>haben/sind </span><span class="irr">gefahren</span></td></tr></table></div>
+<div class="card"><h3><a href="">Präteritum</a> <small>simple past</small></h3>
+<table><tr><th scope="row">ich</th><td lang="de"><span class="irr">fuhr</span></td></tr><tr><th scope="row">du</th><td lang="de"><span class="irr">fuhrst</span></td></tr><tr><th scope="row">er/sie/es</th><td lang="de"><span class="irr">fuhr</span></td></tr><tr><th scope="row">wir</th><td lang="de"><span class="irr">fuhren</span></td></tr><tr><th scope="row">ihr</th><td lang="de"><span class="irr">fuhrt</span></td></tr><tr><th scope="row">sie/Sie</th><td lang="de"><span class="irr">fuhren</span></td></tr></table></div>
+<div class="card compound"><h3><a href="">Plusquamperfekt</a> <small>past perfect</small></h3>
+<table><tr><th scope="row">ich</th><td lang="de"><span>hatte/war </span><span class="irr">gefahren</span></td></tr><tr><th scope="row">du</th><td lang="de"><span>hattest/warst </span><span class="irr">gefahren</span></td></tr><tr><th scope="row">er/sie/es</th><td lang="de"><span>hatte/war </span><span class="irr">gefahren</span></td></tr><tr><th scope="row">wir</th><td lang="de"><span>hatten/waren </span><span class="irr">gefahren</span></td></tr><tr><th scope="row">ihr</th><td lang="de"><span>hattet/wart </span><span class="irr">gefahren</span></td></tr><tr><th scope="row">sie/Sie</th><td lang="de"><span>hatten/waren </span><span class="irr">gefahren</span></td></tr></table></div>
+</div></section>
+</article></main>
+</div>
+</body>
+</html>

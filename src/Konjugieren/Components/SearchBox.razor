@@ -1,0 +1,109 @@
+@inject VerbDatabase Db
+@inject NavigationManager Nav
+@implements IDisposable
+
+<div class="search @(Compact ? "compact" : "")" @onfocusout="Blur" @onfocusin="() => _open = true">
+    <input type="search" placeholder="@(Compact ? "Search verb…" : "Type a verb or a form: machen, ging, rief an…")"
+           aria-label="Search verbs" autocomplete="off" autocapitalize="off" spellcheck="false"
+           value="@_term" @oninput="OnInput" @onkeydown="OnKey" />
+    @if (_open && (_verbs.Count > 0 || _forms.Count > 0 || _searchedForms))
+    {
+        <ul class="suggestions" role="listbox">
+            @for (var i = 0; i < _verbs.Count; i++)
+            {
+                var v = _verbs[i];
+                var idx = i;
+                <li role="option" aria-selected="@(idx == _selected)" class="@(idx == _selected ? "selected" : "")"
+                    @onmousedown="() => Go(v.Infinitive)" @onmousedown:preventDefault>
+                    <span class="inf">@v.Infinitive</span>
+                    @if (!v.HasConjugation) { <span class="tag muted">no table</span> }
+                    else if (v.IsIrregular == true) { <span class="tag irr">irregular</span> }
+                </li>
+            }
+            @if (_forms.Count > 0)
+            {
+                <li class="group-label">Conjugated form</li>
+                @for (var i = 0; i < _forms.Count; i++)
+                {
+                    var f = _forms[i];
+                    var idx = _verbs.Count + i;
+                    <li role="option" aria-selected="@(idx == _selected)" class="@(idx == _selected ? "selected" : "")"
+                        @onmousedown="() => Go(f.Infinitive)" @onmousedown:preventDefault>
+                        <span class="inf">@f.Infinitive</span>
+                        <span class="hint">@f.Where</span>
+                    </li>
+                }
+            }
+            else if (_searchedForms && _verbs.Count == 0)
+            {
+                <li class="group-label">Nothing found</li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter] public bool Compact { get; set; }
+
+    private string _term = "";
+    private List<VerbSummary> _verbs = [];
+    private sealed record VerbHit(string Infinitive, string Where);
+    private List<VerbHit> _forms = [];
+    private bool _searchedForms, _open;
+    private int _selected;
+    private CancellationTokenSource? _cts;
+
+    private static string Person(int p) => p switch { 1 => "ich", 2 => "du", 3 => "er/sie/es", 4 => "wir", 5 => "ihr", _ => "sie/Sie" };
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        _term = (e.Value?.ToString() ?? "").Trim().ToLowerInvariant();
+        _selected = 0;
+        _open = true;
+        _forms = [];
+        _searchedForms = false;
+        _verbs = _term.Length == 0 ? [] : Db.SearchInfinitives(_term);
+
+        // The reverse form lookup scans the whole form table, so wait for a pause in typing.
+        _cts?.Cancel();
+        if (_term.Length < 2) return;
+        var cts = _cts = new CancellationTokenSource();
+        try { await Task.Delay(350, cts.Token); } catch (TaskCanceledException) { return; }
+        // One row per verb: "gehen · Präteritum (ich, er/sie/es)"
+        _forms = Db.FindForm(_term, 40)
+            .GroupBy(f => f.Infinitive)
+            .Take(6)
+            .Select(g => new VerbHit(g.Key, string.Join(", ", g
+                .GroupBy(f => f.TenseName)
+                .Select(t => t.Key + (t.Any(f => f.Person > 0) ? $" ({string.Join(", ", t.Select(f => Person(f.Person)))})" : "")))))
+            .ToList();
+        _searchedForms = true;
+    }
+
+    private void OnKey(KeyboardEventArgs e)
+    {
+        var count = _verbs.Count + _forms.Count;
+        switch (e.Key)
+        {
+            case "ArrowDown" when count > 0: _selected = (_selected + 1) % count; _open = true; break;
+            case "ArrowUp" when count > 0: _selected = (_selected - 1 + count) % count; break;
+            case "Escape": _open = false; break;
+            case "Enter" when count > 0:
+                Go(_selected < _verbs.Count ? _verbs[_selected].Infinitive : _forms[_selected - _verbs.Count].Infinitive);
+                break;
+        }
+    }
+
+    private void Blur() => _open = false;
+
+    private void Go(string infinitive)
+    {
+        _open = false;
+        _term = "";
+        _verbs = [];
+        _forms = [];
+        Nav.NavigateTo("verb/" + Uri.EscapeDataString(infinitive));
+    }
+
+    public void Dispose() => _cts?.Cancel();
+}

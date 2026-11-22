@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Konjugieren",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/Konjugieren", "--launch-profile", "http", "--no-launch-browser"],
+      "port": 5039
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+@inherits LayoutComponentBase
+@inject VerbDatabase Db
+
+<header class="topbar">
+    <a class="brand" href="">
+        <img src="icons/icon-192.png" width="28" height="28" alt="" />
+        <span>Konjugieren</span>
+    </a>
+    <nav class="nav">
+        <NavLink href="guide" class="nav-link">Tenses</NavLink>
+    </nav>
+    @if (_ready)
+    {
+        <SearchBox Compact="true" />
+    }
+</header>
+
+<main class="page">
+    @if (_error is not null)
+    {
+        <div class="notice error">Could not load the verb database: @_error</div>
+    }
+    else if (!_ready)
+    {
+        <div class="db-loading" role="status">
+            <div class="spinner" aria-hidden="true"></div>
+            <p>Loading 9,000 German verbs…</p>
+        </div>
+    }
+    else
+    {
+        @Body
+    }
+</main>
+
+<footer class="footer">
+    <p>
+        Conjugation tables, definitions and etymologies from <a href="https://en.wiktionary.org/" target="_blank" rel="noopener">Wiktionary</a>,
+        licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>.
+        Compound tenses and the regular/irregular marking are worked out by Konjugieren.
+    </p>
+    <p class="credits">
+        Made with love 💛 (c) 2026 Per Hejndorf, Kreaton – @BuildInfo.Display ·
+        <a href="https://github.com/kreaton/Konjugieren" target="_blank" rel="noopener">Source on GitHub</a>
+    </p>
+</footer>
+
+@code {
+    private bool _ready;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await Db.EnsureLoadedAsync();
+            _ready = true;
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

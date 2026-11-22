@@ -1,0 +1,28 @@
+@* Primary form (irregular parts highlighted) followed by its variants. *@
+@foreach (var p in Primary)
+{
+    if (p.Irregular) { <span class="irr" title="Irregular: differs from the regular pattern">@p.Text</span> }
+    else { <span>@p.Text</span> }
+}
+@if (Primary.Count == 0) { <span class="none">—</span> }
+@foreach (var v in Variants.Where(v => ShowRare || v.Note is null))
+{
+    <span class="variant" title="@v.Note">
+        <span class="sep">/</span>
+        <span class="@(v.Irregular == true ? "irr" : "")">@v.Value</span>
+        @if (v.Note is not null) { <span class="note">@Abbreviate(v.Note)</span> }
+    </span>
+}
+
+@code {
+    [Parameter, EditorRequired] public List<Piece> Primary { get; set; } = [];
+    [Parameter] public List<VerbForm> Variants { get; set; } = [];
+    [Parameter] public bool ShowRare { get; set; }
+
+    private static string Abbreviate(string note) => note
+        .Replace("archaic", "arch.")
+        .Replace("colloquial", "coll.")
+        .Replace("Southern-Germany", "S. Germany")
+        .Replace("literary", "lit.")
+        .Replace("obsolete", "obs.");
+}

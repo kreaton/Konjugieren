@@ -1,0 +1,78 @@
+name: Build and Deploy Blazor WASM to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Also allows a manual run from the Actions tab
+
+permissions:
+  contents: read
+
+# One deployment at a time: pushes in quick succession queue up instead of failing with
+# "in progress deployment". Only the newest waiting run is kept; a running one is not cancelled.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 11.0.x # The project targets net11.0
+
+      - name: Install wasm-tools
+        # Links SQLite (e_sqlite3.a) into dotnet.wasm, see WasmBuildNative in Konjugieren.csproj
+        run: dotnet workload install wasm-tools
+
+      - name: Publish .NET App
+        # The run number becomes the patch version (1.0.<run>), see Directory.Build.props
+        run: dotnet publish src/Konjugieren/Konjugieren.csproj -c Release -o release -p:BuildNumber=${{ github.run_number }}
+
+      - name: Prepare for GitHub Pages
+        working-directory: release/wwwroot
+        run: |
+          # The app has real routes (/verb/machen), so the base must be the site root, not "./"
+          sed -i 's|<base href="/" />|<base href="/${{ github.event.repository.name }}/" />|' index.html
+          # A deep link is a 404 for Pages; serving the app as 404.html lets the router take over
+          cp index.html 404.html
+          # Keep Jekyll from hiding the _framework folder
+          touch .nojekyll
+
+      - name: Upload publish artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: publish-output
+          path: release/wwwroot
+          include-hidden-files: true
+
+  # Publishes to https://kreaton.github.io/Konjugieren/ (Settings > Pages > Source: GitHub Actions).
+  deploy-pages:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download publish artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: publish-output
+          path: release
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: release
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
