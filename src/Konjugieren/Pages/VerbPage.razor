@@ -27,7 +27,7 @@ else
                 @if (ClassLabel(_verb.ConjugationClass) is { } cls) { <span class="badge">@cls</span> }
                 @if (_verb.IsIrregular == true)
                 {
-                    <span class="badge irr">irregular · @_verb.IrregularForms forms</span>
+                    <span class="badge irr">irregular · @_verb.IrregularForms @(_verb.IrregularForms == 1 ? "form" : "forms")</span>
                 }
                 else if (_verb.IsIrregular == false)
                 {
