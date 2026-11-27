@@ -1,6 +1,6 @@
 # Renders the app icon in every size into src/Konjugieren/wwwroot/icons and src/Konjugieren/wwwroot/favicon.ico:
-# a cream serif "K" on Konjugieren blue with three conjugation-table rows beside it, the middle one
-# red like an irregular form. Favicons, too small for three rows, show two.
+# a cream serif "K" on the German flag (black, red, gold) with three conjugation-table rows beside it, the middle one
+# red like an irregular form (gold where it would sit on red). The artwork is outlined so it reads on any band. Favicons, too small for three rows, show two.
 #   powershell -File tools\make-icons.ps1
 Add-Type -AssemblyName System.Drawing
 
@@ -9,6 +9,21 @@ New-Item -ItemType Directory -Force $out | Out-Null
 
 $cream = [System.Drawing.Color]::FromArgb(0xFA, 0xF6, 0xEC)
 $red = [System.Drawing.Color]::FromArgb(0xE5, 0x4B, 0x3C)
+$flagBlack = [System.Drawing.Color]::FromArgb(0x00, 0x00, 0x00)
+$flagRed = [System.Drawing.Color]::FromArgb(0xDD, 0x00, 0x00)
+$flagGold = [System.Drawing.Color]::FromArgb(0xFF, 0xCE, 0x00)
+# The irregular row sits on the red band, so it is gold instead of red.
+$irregular = $flagGold
+
+# A thin dark outline keeps the cream artwork readable where it crosses a light part of the flag.
+$outline = [System.Drawing.Color]::FromArgb(150, 0x1A, 0x10, 0x10)
+
+function Add-OutlinedShape($g, $path, $color, [float]$width) {
+    $pen = New-Object System.Drawing.Pen $outline, ([float][Math]::Max(1, $width))
+    $pen.LineJoin = "Round"
+    $g.DrawPath($pen, $path)
+    $g.FillPath((New-Object System.Drawing.SolidBrush $color), $path)
+}
 
 function New-RoundedRect([float]$x, [float]$y, [float]$w, [float]$h, [float]$r) {
     $path = New-Object System.Drawing.Drawing2D.GraphicsPath
@@ -32,14 +47,13 @@ function New-Icon([int]$size, [double]$scale = 0.78, [bool]$rounded = $false, [b
     $g.InterpolationMode = "HighQualityBicubic"
     $g.Clear([System.Drawing.Color]::Transparent)
 
-    $rect = New-Object System.Drawing.RectangleF 0, 0, $size, $size
-    $bg = New-Object System.Drawing.Drawing2D.LinearGradientBrush $rect,
-        ([System.Drawing.Color]::FromArgb(0x34, 0x62, 0xA4)), ([System.Drawing.Color]::FromArgb(0x18, 0x31, 0x5A)), 60
-    if ($rounded) {
-        $g.FillPath($bg, (New-RoundedRect 0 0 $size $size ($size * 0.22)))
-    } else {
-        $g.FillRectangle($bg, $rect)
-    }
+    # Rounded icons (favicons and manifest icons) clip the flag to their own corners.
+    if ($rounded) { $g.SetClip((New-RoundedRect 0 0 $size $size ($size * 0.22))) }
+    # German flag: black, red and gold in three equal bands.
+    $g.FillRectangle((New-Object System.Drawing.SolidBrush $flagBlack), [float]0, [float]0, [float]$size, [float]($size / 3))
+    $g.FillRectangle((New-Object System.Drawing.SolidBrush $flagRed), [float]0, [float]($size / 3), [float]$size, [float]($size / 3))
+    $g.FillRectangle((New-Object System.Drawing.SolidBrush $flagGold), [float]0, [float]($size * 2 / 3), [float]$size, [float]($size / 3 + 1))
+    $g.ResetClip()
 
     # The artwork lives in a square of side $a centred in the icon.
     $a = $size * $scale
@@ -52,22 +66,24 @@ function New-Icon([int]$size, [double]$scale = 0.78, [bool]$rounded = $false, [b
     $format.Alignment = "Center"
     $format.LineAlignment = "Center"
     $cRect = New-Object System.Drawing.RectangleF ($x0 - $a * 0.17), ($y0 + $a * 0.02), $a, $a
-    $g.DrawString("K", $font, (New-Object System.Drawing.SolidBrush $cream), $cRect, $format)
+    $glyph = New-Object System.Drawing.Drawing2D.GraphicsPath
+    $glyph.AddString("K", $font.FontFamily, [int]$font.Style, $font.Size, $cRect, $format)
+    Add-OutlinedShape $g $glyph $cream ($a * 0.05)
 
     # Table rows to the right of the K.
     $rowX = $x0 + $a * 0.66
     $rowW = $a * 0.37
     $rowH = [Math]::Max(2, $a * 0.08)
     if ($small) {
-        $rows = @(@{ Y = 0.38; Color = $cream; W = 1.0 }, @{ Y = 0.55; Color = $red; W = 0.85 })
+        $rows = @(@{ Y = 0.38; Color = $cream; W = 1.0 }, @{ Y = 0.55; Color = $irregular; W = 0.85 })
         $rowH = [Math]::Max(2, $a * 0.11)
     } else {
-        $rows = @(@{ Y = 0.37; Color = $cream; W = 1.0 }, @{ Y = 0.48; Color = $red; W = 0.8 }, @{ Y = 0.59; Color = $cream; W = 0.9 })
+        $rows = @(@{ Y = 0.37; Color = $cream; W = 1.0 }, @{ Y = 0.48; Color = $irregular; W = 0.8 }, @{ Y = 0.59; Color = $cream; W = 0.9 })
     }
     foreach ($row in $rows) {
         $w = $rowW * $row.W
         $path = New-RoundedRect $rowX ($y0 + $a * $row.Y) $w $rowH ($rowH / 2)
-        $g.FillPath((New-Object System.Drawing.SolidBrush $row.Color), $path)
+        Add-OutlinedShape $g $path $row.Color ($a * 0.03)
     }
 
     $g.Dispose()
